@@ -32,7 +32,7 @@ private:
   String myApiKey = "";
   String units = "";
   
-  const char* servername = "api.openweathermap.org";  // remote server we will connect to
+  const char* servername = "api.ambientweather.net";  // remote server we will connect to
 
   typedef struct {
     String lat;
@@ -44,16 +44,13 @@ private:
     String humidity;
     String condition;
     String wind;
+    String pressure;
+    String direction;
     String weatherId;
     String description;
     String icon;
     boolean cached;
     String error;
-    String pressure;
-    String direction;
-    String high;
-    String low;
-    String timeZone;
   } weather;
 
   weather weathers[5];
@@ -78,13 +75,11 @@ public:
   String getHumidityRounded(int index);
   String getCondition(int index);
   String getWind(int index);
-  String getWindRounded(int index);
   String getDirection(int index);
   String getDirectionRounded(int index);
   String getDirectionText(int index);
   String getPressure(int index);
-  String getHigh(int index);
-  String getLow(int index);
+  String getWindRounded(int index);
   String getWeatherId(int index);
   String getDescription(int index);
   String getIcon(int index);
@@ -92,6 +87,7 @@ public:
   String getMyCityIDs();
   String getWeatherIcon(int index);
   String getError();
-  String getWeekDay(int index, float offset);
-  int getTimeZone(int index);
+  String getValue(String data, char separator, int index);
+  String getHigh(int index);
+  String getLow(int index);
 };

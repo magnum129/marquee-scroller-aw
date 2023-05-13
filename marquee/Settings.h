@@ -51,6 +51,8 @@ SOFTWARE.
 #include "NewsApiClient.h" 
 #include "OctoPrintClient.h"
 #include "PiHoleClient.h"
+#include "Font4x5Fixed.h"
+#include "Font4x7Fixed.h"
 
 //******************************
 // Start Settings

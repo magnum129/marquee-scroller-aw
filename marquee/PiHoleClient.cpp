@@ -27,15 +27,22 @@ PiHoleClient::PiHoleClient() {
   //Constructor
 }
 
-void PiHoleClient::getPiHoleData(String server, int port) {
+void PiHoleClient::getPiHoleData(String server, int port, String apiKey) {
 
+  WiFiClient wifiClient;
   errorMessage = "";
   String response = "";
 
-  String apiGetData = "http://" + server + ":" + String(port) + "/admin/api.php?summary";
+  if (apiKey == "") {
+    errorMessage = "Pi-hole API Key is required to view Summary Data.";
+    Serial.println(errorMessage);
+    return;
+  }
+
+  String apiGetData = "http://" + server + ":" + String(port) + "/admin/api.php?summary&auth=" + apiKey;
   Serial.println("Sending: " + apiGetData);
   HTTPClient http;  //Object of class HTTPClient
-  http.begin(apiGetData);// get the result
+  http.begin(wifiClient, apiGetData);// get the result
   int httpCode = http.GET();
   //Check the returning code
   if (httpCode > 0) {
@@ -89,11 +96,13 @@ void PiHoleClient::getPiHoleData(String server, int port) {
 }
 
 void PiHoleClient::getTopClientsBlocked(String server, int port, String apiKey) {
+  WiFiClient wifiClient;
   errorMessage = "";
   resetClientsBlocked();
 
   if (apiKey == "") {
     errorMessage = "Pi-hole API Key is required to view Top Clients Blocked.";
+    Serial.println(errorMessage);
     return;
   }
 
@@ -102,7 +111,7 @@ void PiHoleClient::getTopClientsBlocked(String server, int port, String apiKey) 
   String apiGetData = "http://" + server + ":" + String(port) + "/admin/api.php?topClientsBlocked=3&auth=" + apiKey;
   Serial.println("Sending: " + apiGetData);
   HTTPClient http;  //Object of class HTTPClient
-  http.begin(apiGetData);// get the result
+  http.begin(wifiClient, apiGetData);// get the result
   int httpCode = http.GET();
   //Check the returning code
   if (httpCode > 0) {
@@ -144,19 +153,26 @@ void PiHoleClient::getTopClientsBlocked(String server, int port, String apiKey) 
   Serial.println();
 }
 
-void PiHoleClient::getGraphData(String server, int port) {
-  
+void PiHoleClient::getGraphData(String server, int port, String apiKey) {
+  WiFiClient wifiClient;
   HTTPClient http;
   
-  String apiGetData = "http://" + server + ":" + String(port) + "/admin/api.php?overTimeData10mins";
+  errorMessage = "";
+
+  if (apiKey == "") {
+    errorMessage = "Pi-hole API Key is required to view Graph Data.";
+    Serial.println(errorMessage);
+    return;
+  }
+
+  String apiGetData = "http://" + server + ":" + String(port) + "/admin/api.php?overTimeData10mins&auth=" + apiKey;
   resetBlockedGraphData();
   Serial.println("Getting Pi-Hole Graph Data");
   Serial.println(apiGetData);
-  http.begin(apiGetData);
+  http.begin(wifiClient, apiGetData);
   int httpCode = http.GET();
 
   String result = "";
-  errorMessage = "";
   boolean track = false;
   int countBracket = 0;
   blockedCount = 0;
@@ -180,7 +196,7 @@ void PiHoleClient::getGraphData(String server, int port) {
           int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
           for(int i=0;i<c;i++) {
             if (track && countBracket >= 3) {
-              if (buff[i] == ',' || buff[i] == '}') {
+              if (buff[i] == ',' || buff[i] == '}' && blockedCount < 144) {
                 blocked[blockedCount] = result.toInt();
                 if (blocked[blockedCount] > blockedHigh) {
                   blockedHigh = blocked[blockedCount];

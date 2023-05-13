@@ -70,9 +70,7 @@ void OpenWeatherMapClient::updateWeather() {
     return;
   }
 
-
-
-  // Skip HTTP headers
+    // Skip HTTP headers
   char endOfHeaders[] = "\r\n\r\n";
   if (!weatherClient.find(endOfHeaders)) {
     Serial.println(F("Invalid response"));
